@@ -1,14 +1,30 @@
-from pydantic import BaseModel, Field, constr, confloat
+from pydantic import BaseModel, Field, constr, confloat, create_model
+from typing import Optional
 
-validate_str = constr(min_length=3, max_length=50, strict=True)
-validate_float = confloat(gt=0.0, strict=True)  # greater than 0.0
+validate_str = constr(
+    max_length=50,
+    min_length=3,
+    strict=True
+)
+
+validate_float = confloat(
+    gt=0.0,
+    strict=True
+)
 
 
-class BaseProduct(BaseModel):
-    name: validate_str = Field(...)
-    brand: validate_str = Field(...)
-    price: validate_float = Field(...)
+class BaseProducto(BaseModel):
+    nombre: validate_str = Field(...)
+    marca: validate_str = Field(...)
+    precio: validate_float = Field(...)
+
+    @classmethod
+    def as_optional(cls):
+        annonations = cls.__fields__
+        fields = {attribute: (Optional[data_type.type_], None) for attribute, data_type in annonations.items()}
+        OptionalModel = create_model(f"Optional{cls.__name__}", **fields)
+        return OptionalModel
 
 
-class Product(BaseProduct):
+class Producto(BaseProducto):
     id: int = Field(...)
